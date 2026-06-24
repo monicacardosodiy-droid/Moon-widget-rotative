@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Sentence — Almanack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital@0;1&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #f1e6c8;
+    --ink: #2b2013;
+    --ink-soft: #6e5a3a;
+    --brass: #9c6b2e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    font-family: "EB Garamond", Georgia, serif;
+    background: var(--parchment);
+    background-image:
+      radial-gradient(ellipse at 18% 12%, rgba(110,90,58,0.10), transparent 40%),
+      radial-gradient(ellipse at 85% 88%, rgba(110,90,58,0.10), transparent 45%),
+      radial-gradient(ellipse at 92%  8%, rgba(156,107,46,0.07), transparent 35%);
+  }
+
+  /* ── square card ── */
+  .leaf {
+    width: min(420px, 90vw);
+    aspect-ratio: 1 / 1;
+    padding: 32px;
+    border: 1px solid rgba(156,107,46,0.55);
+    box-shadow: 0 0 0 6px var(--parchment), 0 0 0 7px rgba(156,107,46,0.4);
+    background: rgba(255,252,240,0.25);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── pages ── */
+  .page {
+    position: absolute;
+    inset: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.7s ease;
+    pointer-events: none;
+    text-align: center;
+  }
+
+  .page.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ── PAGE 1 ── */
+
+  .flourish {
+    color: var(--brass);
+    font-size: 13px;
+    letter-spacing: 0.35em;
+    margin-bottom: 18px;
+  }
+
+  .weekday {
+    font-family: "IM Fell English SC", serif;
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+
+  .date-line {
+    font-family: "EB Garamond", serif;
+    font-style: italic;
+    font-size: 26px;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+
+  .anno {
+    font-family: "IM Fell English SC", serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--ink-soft);
+    margin-top: 3px;
+  }
+
+  .rule {
+    width: 60px;
+    height: 1px;
+    background: rgba(156,107,46,0.45);
+    margin: 18px auto;
+  }
+
+  .phase {
+    font-family: "IM Fell English SC", serif;
+    font-size: 17px;
+    letter-spacing: 0.1em;
+    color: var(--brass);
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-family: "EB Garamond", serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ink);
+    line-height: 1.45;
+    margin-bottom: 10px;
+  }
+
+  .keywords {
+    font-family: "IM Fell English SC", serif;
+    font-size: 10.5px;
+    letter-spacing: 0.15em;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* ── PAGE 2 ── */
+  .page-phase {
+    font-family: "IM Fell English SC", serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--brass);
+    margin-bottom: 14px;
+  }
+
+  .divider {
+    width: 50px;
+    height: 1px;
+    background: rgba(156,107,46,0.4);
+    margin: 0 auto 16px;
+    border: none;
+  }
+
+  .paragraph {
+    font-family: "IM Fell English", Georgia, serif;
+    font-style: italic;
+    font-size: clamp(14px, 2.8vw, 17px);
+    line-height: 1.65;
+    color: var(--ink);
+    text-align: center;
+  }
+
+  .paragraph::before { content: "\201C"; color: var(--brass); }
+  .paragraph::after  { content: "\201D"; color: var(--brass); }
+
+  .paragraph p {
+    margin-bottom: 0.6em;
+  }
+  .paragraph p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ── dots ── */
+  .dots {
+    position: absolute;
+    bottom: 12px;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+  }
+
+  .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(156,107,46,0.25);
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .dot.active { background: var(--brass); }
+
+  /* ── progress bar ── */
+  .progress-bar {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 2px;
+    background: rgba(156,107,46,0.4);
+    width: 0%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="leaf">
+
+  <!-- PAGE 1: date + title block, all centred -->
+  <div class="page active" id="page1">
+    <div class="flourish">&#10086;</div>
+    <div class="weekday"   id="weekday"></div>
+    <div class="date-line" id="dateLine"></div>
+    <div class="anno"      id="annoLine"></div>
+    <div class="rule"></div>
+    <div class="phase"    id="phase"></div>
+    <div class="subtitle" id="subtitle"></div>
+    <div class="keywords" id="keywords"></div>
+  </div>
+
+  <!-- PAGE 2: phase label + paragraph -->
+  <div class="page" id="page2">
+    <div class="page-phase" id="pagePhase"></div>
+    <div class="divider"></div>
+    <div class="paragraph" id="paragraphText"></div>
+  </div>
+
+  <div class="dots">
+    <div class="dot active" id="dot1" onclick="goTo(0)"></div>
+    <div class="dot"        id="dot2" onclick="goTo(1)"></div>
+  </div>
+
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<script>
+  const days = [
+    // ── New Moon (4 days) ──────────────────────────────────────────
+    { phase: "New Moon",           subtitle: "Plant the seeds of your future dreams.", keywords: "A clean slate. Potential. Dreams.",     text: "Recite the mantra 'I am blessed'. What do you want? Meditate on your dreams. Make time for yourself and put your wishes in writing or drawing. Imagine your wishes in your mind's eye. Feel them and read your wishes out loud." },
+    { phase: "New Moon",           subtitle: "Plant the seeds of your future dreams.", keywords: "A clean slate. Potential. Dreams.",     text: "Recite the mantra 'I am blessed'. What do you want? Meditate on your dreams. Make time for yourself and put your wishes in writing or drawing. Imagine your wishes in your mind's eye. Feel them and read your wishes out loud." },
+    { phase: "New Moon",           subtitle: "Plant the seeds of your future dreams.", keywords: "A clean slate. Potential. Dreams.",     text: "Recite the mantra 'I am blessed'. What do you want? Meditate on your dreams. Make time for yourself and put your wishes in writing or drawing. Imagine your wishes in your mind's eye. Feel them and read your wishes out loud." },
+    { phase: "New Moon",           subtitle: "Plant the seeds of your future dreams.", keywords: "A clean slate. Potential. Dreams.",     text: "Recite the mantra 'I am blessed'. What do you want? Meditate on your dreams. Make time for yourself and put your wishes in writing or drawing. Imagine your wishes in your mind's eye. Feel them and read your wishes out loud." },
+    // ── Waxing Moon (3 days) ──────────────────────────────────────
+    { phase: "Waxing Moon",        subtitle: "Explore your dreams.",                   keywords: "Courage. Moving forward. Faith.",       text: "Allow your dreams to blossom and flourish. Keep thinking about what you want. Go back to your wish lists, read it aloud, think about it, visualize it. Do this until your wishes feel real. Keep faith and have courage." },
+    { phase: "Waxing Moon",        subtitle: "Explore your dreams.",                   keywords: "Courage. Moving forward. Faith.",       text: "Allow your dreams to blossom and flourish. Keep thinking about what you want. Go back to your wish lists, read it aloud, think about it, visualize it. Do this until your wishes feel real. Keep faith and have courage." },
+    { phase: "Waxing Moon",        subtitle: "Explore your dreams.",                   keywords: "Courage. Moving forward. Faith.",       text: "Allow your dreams to blossom and flourish. Keep thinking about what you want. Go back to your wish lists, read it aloud, think about it, visualize it. Do this until your wishes feel real. Keep faith and have courage." },
+    // ── First Quarter (4 days) ────────────────────────────────────
+    { phase: "First Quarter Moon", subtitle: "It's time to commit.",                   keywords: "Challenges. Confidence. Commitment.",   text: "You may have doubts about your ability to manifest your dreams. Your resolve and/or commitment are being tested. If you're no longer so wild, or committed to, your old wishes, let go. If you're still feeling hyped about them, double-commit. Go back and re-read your wish list. Re-feel them, re-visualize them, Re-imagine them. A crisis or issue could come up. Work a little harder on your dreams." },
+    { phase: "First Quarter Moon", subtitle: "It's time to commit.",                   keywords: "Challenges. Confidence. Commitment.",   text: "You may have doubts about your ability to manifest your dreams. Your resolve and/or commitment are being tested. If you're no longer so wild, or committed to, your old wishes, let go. If you're still feeling hyped about them, double-commit. Go back and re-read your wish list. Re-feel them, re-visualize them, Re-imagine them. A crisis or issue could come up. Work a little harder on your dreams." },
+    { phase: "First Quarter Moon", subtitle: "It's time to commit.",                   keywords: "Challenges. Confidence. Commitment.",   text: "You may have doubts about your ability to manifest your dreams. Your resolve and/or commitment are being tested. If you're no longer so wild, or committed to, your old wishes, let go. If you're still feeling hyped about them, double-commit. Go back and re-read your wish list. Re-feel them, re-visualize them, Re-imagine them. A crisis or issue could come up. Work a little harder on your dreams." },
+    { phase: "First Quarter Moon", subtitle: "It's time to commit.",                   keywords: "Challenges. Confidence. Commitment.",   text: "You may have doubts about your ability to manifest your dreams. Your resolve and/or commitment are being tested. If you're no longer so wild, or committed to, your old wishes, let go. If you're still feeling hyped about them, double-commit. Go back and re-read your wish list. Re-feel them, re-visualize them, Re-imagine them. A crisis or issue could come up. Work a little harder on your dreams." },
+    // ── Gibbous Moon (4 days) ─────────────────────────────────────
+    { phase: "Gibbous Moon",       subtitle: "Stay on course.",                        keywords: "Tweak. Hone. Adjust.",                  text: "Don't give up. Don't allow your ego, or fear, to spoil your plans. Stay open to whatever life is teaching you. Make changes if you need to. Gibbous means 'bulging'. Review your plans. Build some kind of momentum. Start new plans, restart something, don't be impatient. Get back into good habits or routines." },
+    { phase: "Gibbous Moon",       subtitle: "Stay on course.",                        keywords: "Tweak. Hone. Adjust.",                  text: "Don't give up. Don't allow your ego, or fear, to spoil your plans. Stay open to whatever life is teaching you. Make changes if you need to. Gibbous means 'bulging'. Review your plans. Build some kind of momentum. Start new plans, restart something, don't be impatient. Get back into good habits or routines." },
+    { phase: "Gibbous Moon",       subtitle: "Stay on course.",                        keywords: "Tweak. Hone. Adjust.",                  text: "Don't give up. Don't allow your ego, or fear, to spoil your plans. Stay open to whatever life is teaching you. Make changes if you need to. Gibbous means 'bulging'. Review your plans. Build some kind of momentum. Start new plans, restart something, don't be impatient. Get back into good habits or routines." },
+    { phase: "Gibbous Moon",       subtitle: "Stay on course.",                        keywords: "Tweak. Hone. Adjust.",                  text: "Don't give up. Don't allow your ego, or fear, to spoil your plans. Stay open to whatever life is teaching you. Make changes if you need to. Gibbous means 'bulging'. Review your plans. Build some kind of momentum. Start new plans, restart something, don't be impatient. Get back into good habits or routines." },
+    // ── Full Moon (4 days) ────────────────────────────────────────
+    { phase: "Full Moon",          subtitle: "It's make-or-break time!",               keywords: "Results. Forgiveness. Gratitude.",      text: "Check how you are feeling about your dreams. Feeling encouraged is recommended. Choose the best feeling thought. Feel good. Count your blessings. Release and let go. Bless what hasn't worked out. Be grateful for all the good in your life. Be conscious of anyone or anything that has hurt you. Forgive, let go and move on. Fill up with gratitude. Focus on good feelings by thinking of who and what you're grateful for." },
+    { phase: "Full Moon",          subtitle: "It's make-or-break time!",               keywords: "Results. Forgiveness. Gratitude.",      text: "Check how you are feeling about your dreams. Feeling encouraged is recommended. Choose the best feeling thought. Feel good. Count your blessings. Release and let go. Bless what hasn't worked out. Be grateful for all the good in your life. Be conscious of anyone or anything that has hurt you. Forgive, let go and move on. Fill up with gratitude. Focus on good feelings by thinking of who and what you're grateful for." },
+    { phase: "Full Moon",          subtitle: "It's make-or-break time!",               keywords: "Results. Forgiveness. Gratitude.",      text: "Check how you are feeling about your dreams. Feeling encouraged is recommended. Choose the best feeling thought. Feel good. Count your blessings. Release and let go. Bless what hasn't worked out. Be grateful for all the good in your life. Be conscious of anyone or anything that has hurt you. Forgive, let go and move on. Fill up with gratitude. Focus on good feelings by thinking of who and what you're grateful for." },
+    { phase: "Full Moon",          subtitle: "It's make-or-break time!",               keywords: "Results. Forgiveness. Gratitude.",      text: "Check how you are feeling about your dreams. Feeling encouraged is recommended. Choose the best feeling thought. Feel good. Count your blessings. Release and let go. Bless what hasn't worked out. Be grateful for all the good in your life. Be conscious of anyone or anything that has hurt you. Forgive, let go and move on. Fill up with gratitude. Focus on good feelings by thinking of who and what you're grateful for." },
+    // ── Disseminating Moon (4 days) ───────────────────────────────
+    { phase: "Disseminating Moon", subtitle: "B-r-e-a-t-h-e…",                        keywords: "Relax. Accept. Regroup.",               text: "Relax a little. Don't start something new. Go easy on yourself as you regroup your forces. Share your wisdom. Accept you are where you are and it's okay. Try to relax." },
+    { phase: "Disseminating Moon", subtitle: "B-r-e-a-t-h-e…",                        keywords: "Relax. Accept. Regroup.",               text: "Relax a little. Don't start something new. Go easy on yourself as you regroup your forces. Share your wisdom. Accept you are where you are and it's okay. Try to relax." },
+    { phase: "Disseminating Moon", subtitle: "B-r-e-a-t-h-e…",                        keywords: "Relax. Accept. Regroup.",               text: "Relax a little. Don't start something new. Go easy on yourself as you regroup your forces. Share your wisdom. Accept you are where you are and it's okay. Try to relax." },
+    { phase: "Disseminating Moon", subtitle: "B-r-e-a-t-h-e…",                        keywords: "Relax. Accept. Regroup.",               text: "Relax a little. Don't start something new. Go easy on yourself as you regroup your forces. Share your wisdom. Accept you are where you are and it's okay. Try to relax." },
+    // ── Third Quarter (3 days) ────────────────────────────────────
+    { phase: "Third Quarter Moon", subtitle: "What do you know?",                      keywords: "Re-evaluate. Balance. Trust.",          text: "What didn't work in the past has dissolved on an etheric level. Reorientate yourself. You might feel tired but don't stop, or rest on your laurels. There's tension in the air. Let go. Adjustments are required. Any conflict that occurs now is worth examining. What is the message in the challenges you are facing? A change of course may be called for. Look back and see how far you've come. Decide what you want to take with you into the New Moon cycle. Break bad habits." },
+    { phase: "Third Quarter Moon", subtitle: "What do you know?",                      keywords: "Re-evaluate. Balance. Trust.",          text: "What didn't work in the past has dissolved on an etheric level. Reorientate yourself. You might feel tired but don't stop, or rest on your laurels. There's tension in the air. Let go. Adjustments are required. Any conflict that occurs now is worth examining. What is the message in the challenges you are facing? A change of course may be called for. Look back and see how far you've come. Decide what you want to take with you into the New Moon cycle. Break bad habits." },
+    { phase: "Third Quarter Moon", subtitle: "What do you know?",                      keywords: "Re-evaluate. Balance. Trust.",          text: "What didn't work in the past has dissolved on an etheric level. Reorientate yourself. You might feel tired but don't stop, or rest on your laurels. There's tension in the air. Let go. Adjustments are required. Any conflict that occurs now is worth examining. What is the message in the challenges you are facing? A change of course may be called for. Look back and see how far you've come. Decide what you want to take with you into the New Moon cycle. Break bad habits." },
+    // ── Balsamic Moon (4 days) ────────────────────────────────────
+    { phase: "Balsamic Moon",      subtitle: "And release…",                           keywords: "Healing. Soothing. Surrender.",         text: "Go easy on yourself. Start to think about your dreams again. Allow hope to guide and inspire you. Remember: anything is possible. Live gently. B-r-e-a-t-h-e. Chant: Om Namo Narayani. Let go and move on. Rest and heal. Give yourself a break. Daydream. Dream big. Go wild in your imagination. Smile to yourself. Let go of any habits that aren't good for you." },
+    { phase: "Balsamic Moon",      subtitle: "And release…",                           keywords: "Healing. Soothing. Surrender.",         text: "Go easy on yourself. Start to think about your dreams again. Allow hope to guide and inspire you. Remember: anything is possible. Live gently. B-r-e-a-t-h-e. Chant: Om Namo Narayani. Let go and move on. Rest and heal. Give yourself a break. Daydream. Dream big. Go wild in your imagination. Smile to yourself. Let go of any habits that aren't good for you." },
+    { phase: "Balsamic Moon",      subtitle: "And release…",                           keywords: "Healing. Soothing. Surrender.",         text: "Go easy on yourself. Start to think about your dreams again. Allow hope to guide and inspire you. Remember: anything is possible. Live gently. B-r-e-a-t-h-e. Chant: Om Namo Narayani. Let go and move on. Rest and heal. Give yourself a break. Daydream. Dream big. Go wild in your imagination. Smile to yourself. Let go of any habits that aren't good for you." },
+    { phase: "Balsamic Moon",      subtitle: "And release…",                           keywords: "Healing. Soothing. Surrender.",         text: "Go easy on yourself. Start to think about your dreams again. Allow hope to guide and inspire you. Remember: anything is possible. Live gently. B-r-e-a-t-h-e. Chant: Om Namo Narayani. Let go and move on. Rest and heal. Give yourself a break. Daydream. Dream big. Go wild in your imagination. Smile to yourself. Let go of any habits that aren't good for you." },
+  ];
+
+  // ── Epoch ──────────────────────────────────────────────────────────
+  const EPOCH = new Date(2026, 5, 14); // June 14, 2026
+
+  function getTodayIndex() {
+    const t  = new Date();
+    const d0 = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+    const d1 = new Date(EPOCH.getFullYear(), EPOCH.getMonth(), EPOCH.getDate());
+    const n  = days.length;
+    return ((Math.floor((d0 - d1) / 86400000) % n) + n) % n;
+  }
+
+  const idx   = getTodayIndex();
+  const today = new Date();
+  const entry = days[idx];
+
+  // ── Populate ────────────────────────────────────────────────────────
+  const container = document.getElementById("paragraphText");
+  entry.text.split(/(?<=[.!?])\s+/).forEach(sentence => {
+    const p = document.createElement("p");
+    p.textContent = sentence;
+    container.appendChild(p);
+  });
+  document.getElementById("phase").textContent         = entry.phase;
+  document.getElementById("subtitle").textContent      = entry.subtitle;
+  document.getElementById("keywords").textContent      = entry.keywords;
+  document.getElementById("pagePhase").textContent     = entry.phase;
+
+  const WEEKDAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const MONTHS   = ["January","February","March","April","May","June","July","August",
+                    "September","October","November","December"];
+
+  function ordinal(n) {
+    const s = ["th","st","nd","rd"], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
+  document.getElementById("weekday").textContent  = WEEKDAYS[today.getDay()];
+  document.getElementById("dateLine").textContent =
+    "the " + ordinal(today.getDate()) + " of " + MONTHS[today.getMonth()];
+  document.getElementById("annoLine").textContent = "Anno " + today.getFullYear();
+
+  // ── Timing ──────────────────────────────────────────────────────────
+  const wordCount = entry.text.split(/\s+/).length;
+  const readMs    = Math.min(Math.max(Math.round(wordCount / 200 * 60000), 8000), 20000);
+  const DURATIONS = [10000, readMs];
+
+  // ── Rotation ────────────────────────────────────────────────────────
+  const pages = [document.getElementById("page1"), document.getElementById("page2")];
+  const dots  = [document.getElementById("dot1"),  document.getElementById("dot2")];
+  const bar   = document.getElementById("progressBar");
+  let current = 0, timer;
+
+  function goTo(i) {
+    clearTimeout(timer);
+    pages[current].classList.remove("active");
+    dots[current].classList.remove("active");
+    current = i;
+    pages[current].classList.add("active");
+    dots[current].classList.add("active");
+    startProgress(DURATIONS[current]);
+  }
+
+  function startProgress(duration) {
+    bar.style.transition = "none";
+    bar.style.width = "0%";
+    bar.offsetWidth; // force reflow
+    bar.style.transition = "width " + duration + "ms linear";
+    bar.style.width = "100%";
+    timer = setTimeout(() => goTo((current + 1) % pages.length), duration);
+  }
+
+  startProgress(DURATIONS[0]);
+</script>
+
+</body>
+</html>
